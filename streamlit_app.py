@@ -1,6 +1,7 @@
 import streamlit as st
 from youtube_transcript_api import YouTubeTranscriptApi
 import google.generativeai as genai
+from youtube_transcript_api.proxies import GenericProxyConfig
 from fpdf import FPDF
 import io
 
@@ -84,8 +85,6 @@ if use_word_limit:
         key="word_limit_number_input",
         on_change=lambda: setattr(st.session_state, 'word_limit_value', st.session_state.word_limit_number_input)
     )
-    if word_limit <= 20:
-        st.warning("Please enter a word limit greater than 20 for a meaningful summary. ⚠️")
 
 def get_transcript(video_link):
     try:
@@ -93,13 +92,26 @@ def get_transcript(video_link):
         ampersand_position = video_id.find("&")
         if ampersand_position != -1:
             video_id = video_id[:ampersand_position]
-        
-        with st.spinner("Fetching transcript..."):
-            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+
+        proxy_host = st.secrets["PROXY_HOST"]
+        proxy_port = st.secrets["PROXY_PORT"]
+
+        proxy_url_http = f"http://{proxy_host}:{proxy_port}"
+        proxy_url_https = f"https://{proxy_host}:{proxy_port}"
+
+        ytt_api = YouTubeTranscriptApi(
+            proxy_config=GenericProxyConfig(
+                http_url=proxy_url_http,
+                https_url=proxy_url_https,
+            )
+        )
+
+        with st.spinner("Fetching transcript... "):
+            transcript_list = ytt_api.fetch(video_id)
             transcript = " ".join([item["text"] for item in transcript_list])
         return transcript
     except Exception as e:
-        st.error(f"Failed to fetch transcript. Please ensure the link is valid and the video has public English subtitles. Error: {e}")
+        st.error(f"Failed to fetch transcript. Please ensure the link is valid and the video has public English subtitles. Error: {e} 🚫")
         return None
 
 def create_pdf(summary_text):
