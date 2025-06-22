@@ -7,8 +7,7 @@ import io
 
 st.set_page_config(layout="centered")
 
-# genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-genai.configure(api_key="AIzaSyA57AdnH-OCpZvBJYU4yC6VRCjCcENQFuU")
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 st.title('YouTube Video Summary')
@@ -87,74 +86,19 @@ if use_word_limit:
         on_change=lambda: setattr(st.session_state, 'word_limit_value', st.session_state.word_limit_number_input)
     )
 
-# def get_transcript(video_link):
-#     try:
-#         video_id = video_link.split("v=")[1]
-#         ampersand_position = video_id.find("&")
-#         if ampersand_position != -1:
-#             video_id = video_id[:ampersand_position]
-
-#         proxy_host = st.secrets["PROXY_HOST"]
-#         proxy_port = st.secrets["PROXY_PORT"]
-
-#         proxy_url_http = f"http://{proxy_host}:{proxy_port}"
-#         proxy_url_https = f"https://{proxy_host}:{proxy_port}"
-
-#         ytt_api = YouTubeTranscriptApi(
-#             proxy_config=GenericProxyConfig(
-#                 http_url=proxy_url_http,
-#                 https_url=proxy_url_https,
-#             )
-#         )
-
-#         with st.spinner("Fetching transcript... "):
-#             transcript_list = ytt_api.fetch(video_id)
-#             transcript = " ".join([item["text"] for item in transcript_list])
-#         return transcript
-#     except Exception as e:
-#         st.error(f"Failed to fetch transcript. Please ensure the link is valid and the video has public English subtitles. Error: {e} 🚫")
-#         return None
-
-# def get_transcript(video_link):
-#     try:
-#         video_id = video_link.split("v=")[1]
-#         ampersand_position = video_id.find("&")
-#         if ampersand_position != -1:
-#             video_id = video_id[:ampersand_position]
-        
-#         with st.spinner("Fetching transcript..."):
-#             transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-#             transcript = " ".join([item["text"] for item in transcript_list])
-#         return transcript
-#     except Exception as e:
-#         st.error(f"Failed to fetch transcript. Please ensure the link is valid and the video has public English subtitles. Error: {e}")
-#         return None
-
 def get_transcript(video_link):
     try:
         video_id = video_link.split("v=")[1]
         ampersand_position = video_id.find("&")
         if ampersand_position != -1:
             video_id = video_id[:ampersand_position]
-
-        proxy_host = st.secrets["PROXY_HOST"]
-        proxy_port = st.secrets["PROXY_PORT"]
-
-        proxy_url_http = f"http://{proxy_host}:{proxy_port}"
-
-        ytt_api = YouTubeTranscriptApi(
-            proxy_config=GenericProxyConfig(
-                http_url=proxy_url_http,
-                https_url=None, # <--- THIS IS THE CRUCIAL CHANGE! Set HTTPS URL to None
-            )
-        )
-
-        with st.spinner("Fetching transcript... "):
-            transcript_list = ytt_api.fetch(video_id)
+        
+        with st.spinner("Fetching transcript..."):
+            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
             transcript = " ".join([item["text"] for item in transcript_list])
         return transcript
     except Exception as e:
-        st.error(f"Failed to fetch transcript. Please ensure the link is valid and the video has public English subtitles. Error: {e} 🚫")
+        st.error(f"Failed to fetch transcript. Please ensure the link is valid and the video has public English subtitles. Error: {e}")
         return None
 
 def create_pdf(summary_text):
