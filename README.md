@@ -2,6 +2,8 @@
 
 This Streamlit application allows users to summarize YouTube video transcripts using Google's Gemini-2.5-Flash model.
 
+[Streamlit Cloud App](https://youtube-video-summarizer-qvsxqd64sfbmdwxynsmnzj.streamlit.app/)
+
 ## Features:
 - Summarizes YouTube videos by link.
 - Offers different summary styles (e.g., Professional, Casual, Concise).
